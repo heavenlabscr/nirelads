@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="NirelLoop" extends="Scene"> 
+  <children>
+    <Video
+      id="player"
+      enableUI="false"
+      visible="true"
+    />
+  </children>
+
+  <script type="text/brightscript">
+  <![CDATA[
+    function init()
+      m.top.setFocus(true)
+
+      m.player = m.top.findNode("player")
+
+      ' 🔥 Ajuste real de tamaño según el Scene
+      screenWidth  = m.top.boundingRect().width
+      screenHeight = m.top.boundingRect().height
+
+      m.player.width  = screenWidth
+      m.player.height = screenHeight
+      m.player.translation = [0, 0]
+
+      ' IMPORTANTE para evitar zoom raro
+      m.player.scaling = "fit"
+
+      m.player.observeField("state", "onStateChange")
+
+      startPlayback()
+    end function
+
+    function startPlayback()
+      content = CreateObject("roSGNode", "ContentNode")
+      content.url = "http://desarrollo.soin.net/cfmx/home/public/localhost/videodocs/playlist.m3u8"
+      content.streamFormat = "hls"
+
+      m.player.content = content
+      m.player.control = "play"
+    end function
+
+    function onStateChange()
+      if m.player.state = "error" or m.player.state = "finished"
+        m.player.control = "stop"
+        m.player.control = "play"
+      end if
+    end function
+  ]]>
+  </script>
+</component>
