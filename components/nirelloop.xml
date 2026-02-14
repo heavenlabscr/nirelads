@@ -1,51 +1,72 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<component name="NirelLoop" extends="Scene"> 
+<component name="NirelLoop" extends="Scene">
+
   <children>
+
     <Video
       id="player"
       enableUI="false"
       visible="true"
-    />
+      scaling="zoom" />
+
+    <!-- Reinicio cada 3 horas -->
+    <Timer
+      id="healthRestart"
+      duration="10800"
+      repeat="true" />
+
   </children>
 
   <script type="text/brightscript">
   <![CDATA[
+
     function init()
       m.top.setFocus(true)
 
       m.player = m.top.findNode("player")
+      m.healthRestart = m.top.findNode("healthRestart")
 
-      ' 🔥 Ajuste real de tamaño según el Scene
-      screenWidth  = m.top.boundingRect().width
-      screenHeight = m.top.boundingRect().height
+      rect = m.top.boundingRect()
+      m.player.width  = rect.width
+      m.player.height = rect.height
 
-      m.player.width  = screenWidth
-      m.player.height = screenHeight
-      m.player.translation = [0, 0]
+      m.player.observeField("state", "onPlayerState")
+      m.healthRestart.observeField("fire", "onHealthRestart")
 
-      ' IMPORTANTE para evitar zoom raro
-      m.player.scaling = "fit"
+      playVideo()
 
-      m.player.observeField("state", "onStateChange")
-
-      startPlayback()
+      m.healthRestart.control = "start"
     end function
 
-    function startPlayback()
+
+    function playVideo()
       content = CreateObject("roSGNode", "ContentNode")
-      content.url = "http://desarrollo.soin.net/cfmx/home/public/localhost/videodocs/playlist.m3u8"
+      content.url = "https://tudominio.com/looper.m3u8"
       content.streamFormat = "hls"
 
       m.player.content = content
       m.player.control = "play"
     end function
 
-    function onStateChange()
-      if m.player.state = "error" or m.player.state = "finished"
-        m.player.control = "stop"
-        m.player.control = "play"
+
+    function onPlayerState()
+      print "Estado video: "; m.player.state
+
+      if m.player.state = "finished"
+        playVideo()
+      else if m.player.state = "error"
+        print "Error detectado, reiniciando..."
+        playVideo()
       end if
     end function
+
+
+    function onHealthRestart()
+      print "Reinicio preventivo del player"
+      m.player.control = "stop"
+      playVideo()
+    end function
+
   ]]>
   </script>
 </component>
