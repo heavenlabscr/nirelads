@@ -41,7 +41,7 @@
 
     function playVideo()
       content = CreateObject("roSGNode", "ContentNode")
-      content.url = "https://tudominio.com/looper.m3u8"
+      content.url = "https://heavenlabscr.github.io/nirelads/playlist.m3u8"
       content.streamFormat = "hls"
 
       m.player.content = content
